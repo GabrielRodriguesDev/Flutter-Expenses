@@ -1,15 +1,20 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, import_of_legacy_library_into_null_safe
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, import_of_legacy_library_into_null_safe, library_private_types_in_public_api
 
 import 'dart:math';
-
 import 'package:expenses/components/transaction_form.dart';
-
 import 'package:flutter/material.dart';
-
+import 'components/chart.dart';
 import 'components/transaction_list.dart';
 import 'models/transacion.dart';
 
-main() => runApp(ExpensesApp());
+import 'package:timezone/data/latest.dart' as tzMain;
+import 'package:timezone/standalone.dart' as tz;
+
+main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  tzMain.initializeTimeZones();
+  runApp(ExpensesApp());
+}
 
 class ExpensesApp extends StatelessWidget {
   const ExpensesApp({Key? key}) : super(key: key);
@@ -25,8 +30,9 @@ class ExpensesApp extends StatelessWidget {
           secondary: Colors.amber,
         ),
         textTheme: tema.textTheme.copyWith(
+          // Definindo o Headline padrão do tema
           headline6: TextStyle(
-            fontFamily: 'OpenSans',
+            fontFamily: 'Quicksand',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -34,7 +40,7 @@ class ExpensesApp extends StatelessWidget {
         ),
         appBarTheme: AppBarTheme(
           titleTextStyle: TextStyle(
-            fontFamily: 'OpenSans',
+            fontFamily: 'Quicksand',
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -48,13 +54,49 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [];
+  final List<Transaction> _transactions = [
+    Transaction(
+      id: 'T1',
+      title: "TST1",
+      value: 310.76,
+      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
+          .subtract(Duration(days: 3)),
+    ),
+    Transaction(
+      id: 'T2',
+      title: "TST2",
+      value: 211.30,
+      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
+          .subtract(Duration(days: 4)),
+    ),
+    Transaction(
+      id: 'T2',
+      title: "TST3",
+      value: 400.00,
+      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
+          .subtract(Duration(days: 50)),
+    ),
+    Transaction(
+      id: 'T2',
+      title: "TST4",
+      value: 409.00,
+      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')),
+    ),
+  ];
 
-  _addTransaction(String title, double value) {
+  List<Transaction> get _recentTransaction {
+    return _transactions.where((transaction) {
+      return transaction.data.isAfter(DateTime.now().subtract(
+        Duration(days: 7),
+      ));
+    }).toList();
+  }
+
+  void _addTransaction(String title, double value) {
     final newTransaction = Transaction(
         id: Random().nextDouble().toString(),
         title: title,
@@ -77,26 +119,26 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Despesa Pessoais"), actions: [
-        IconButton(
-          onPressed: () => _openTransactinFormModal(context),
-          icon: Icon(Icons.add),
-        ),
-      ]),
+      appBar: AppBar(
+          title: Text(
+            "Despesa Pessoais",
+          ),
+          actions: [
+            IconButton(
+              onPressed: () => _openTransactinFormModal(context),
+              icon: Icon(Icons.add),
+            ),
+          ]),
       body: Column(
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            child: Card(
-              elevation: 5,
-              child: Text("Gráfico"),
-            ),
+          Chart(
+            recentTransaction: _recentTransaction,
           ),
           Expanded(child: TransactionList(transactions: _transactions)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _openTransactinFormModal((context)),
+        onPressed: () => _openTransactinFormModal(context),
         child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

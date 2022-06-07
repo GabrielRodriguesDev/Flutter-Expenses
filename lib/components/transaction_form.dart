@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors_in_immutables
+// ignore_for_file: prefer_const_constructors_in_immutables, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 
@@ -8,7 +8,7 @@ class TransactionForm extends StatefulWidget {
   final void Function(String title, double value) onSubmit;
 
   @override
-  State<TransactionForm> createState() => _TransactionFormState();
+  _TransactionFormState createState() => _TransactionFormState();
 }
 
 class _TransactionFormState extends State<TransactionForm> {
@@ -33,7 +33,6 @@ class _TransactionFormState extends State<TransactionForm> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
