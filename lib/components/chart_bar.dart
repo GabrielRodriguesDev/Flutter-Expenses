@@ -17,8 +17,10 @@ class ChartBar extends StatelessWidget {
     return Column(
       children: [
         FittedBox(
-            child: Text(value.toStringAsFixed(
-                2))), // O texto de arruma para caber no fittedbox (diminui para caber)
+          child: Text(
+            value.toStringAsFixed(2),
+          ),
+        ), // O texto de arruma para caber no fittedbox (diminui para caber)
         const SizedBox(height: 5),
         //Conainter - Barrinha
         SizedBox(

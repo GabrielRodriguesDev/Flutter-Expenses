@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, import_of_legacy_library_into_null_safe, library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, sized_box_for_whitespace, import_of_legacy_library_into_null_safe, library_private_types_in_public_api, library_prefixes
 
 import 'dart:math';
 import 'package:expenses/components/transaction_form.dart';
@@ -8,7 +8,6 @@ import 'components/transaction_list.dart';
 import 'models/transacion.dart';
 
 import 'package:timezone/data/latest.dart' as tzMain;
-import 'package:timezone/standalone.dart' as tz;
 
 main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +22,7 @@ class ExpensesApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData tema = ThemeData();
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
       theme: tema.copyWith(
         colorScheme: tema.colorScheme.copyWith(
@@ -36,6 +36,9 @@ class ExpensesApp extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
+          ),
+          button: TextStyle(
+            color: Colors.white,
           ),
         ),
         appBarTheme: AppBarTheme(
@@ -58,35 +61,36 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [
-    Transaction(
-      id: 'T1',
-      title: "TST1",
-      value: 310.76,
-      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
-          .subtract(Duration(days: 3)),
-    ),
-    Transaction(
-      id: 'T2',
-      title: "TST2",
-      value: 211.30,
-      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
-          .subtract(Duration(days: 4)),
-    ),
-    Transaction(
-      id: 'T2',
-      title: "TST3",
-      value: 400.00,
-      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
-          .subtract(Duration(days: 50)),
-    ),
-    Transaction(
-      id: 'T2',
-      title: "TST4",
-      value: 409.00,
-      data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')),
-    ),
-  ];
+  final List<Transaction> _transactions = [];
+  // = [
+  //   Transaction(
+  //     id: 'T1',
+  //     title: "TST1",
+  //     value: 310.76,
+  //     data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
+  //         .subtract(Duration(days: 3)),
+  //   ),
+  //   Transaction(
+  //     id: 'T2',
+  //     title: "TST2",
+  //     value: 211.30,
+  //     data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
+  //         .subtract(Duration(days: 4)),
+  //   ),
+  //   Transaction(
+  //     id: 'T2',
+  //     title: "TST3",
+  //     value: 400.00,
+  //     data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo'))
+  //         .subtract(Duration(days: 50)),
+  //   ),
+  //   Transaction(
+  //     id: 'T2',
+  //     title: "TST4",
+  //     value: 409.00,
+  //     data: tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')),
+  //   ),
+  // ];
 
   List<Transaction> get _recentTransaction {
     return _transactions.where((transaction) {
@@ -96,16 +100,22 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  void _addTransaction(String title, double value) {
+  void _addTransaction(String title, double value, DateTime selectedDate) {
     final newTransaction = Transaction(
         id: Random().nextDouble().toString(),
         title: title,
         value: value,
-        data: DateTime.now());
+        data: selectedDate);
     setState(() {
       _transactions.add(newTransaction);
     });
     Navigator.pop(context);
+  }
+
+  void _removeTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((transaction) => transaction.id == id);
+    });
   }
 
   void _openTransactinFormModal(BuildContext context) {
@@ -134,7 +144,11 @@ class _MyHomePageState extends State<MyHomePage> {
           Chart(
             recentTransaction: _recentTransaction,
           ),
-          Expanded(child: TransactionList(transactions: _transactions)),
+          Expanded(
+              child: TransactionList(
+            transactions: _transactions,
+            onRemove: _removeTransaction,
+          )),
         ],
       ),
       floatingActionButton: FloatingActionButton(

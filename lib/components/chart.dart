@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unused_local_variable
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unused_local_variable, import_of_legacy_library_into_null_safe
 
 import 'package:expenses/components/chart_bar.dart';
 import 'package:expenses/models/transacion.dart';
@@ -54,11 +54,12 @@ class Chart extends StatelessWidget {
             return Flexible(
               fit: FlexFit.tight,
               child: ChartBar(
-                label: transaction['day'].toString(),
-                value: double.parse(transaction['value'].toString()),
-                percentage: double.parse(transaction['value'].toString()) /
-                    _weekTotalValue,
-              ),
+                  label: transaction['day'].toString(),
+                  value: double.parse(transaction['value'].toString()),
+                  percentage: _weekTotalValue == 0
+                      ? 0
+                      : double.parse(transaction['value'].toString()) /
+                          _weekTotalValue),
             );
           }).toList(),
         ),
